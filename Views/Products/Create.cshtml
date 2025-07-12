@@ -1,0 +1,51 @@
+﻿@model ECommerceStore.ViewModels.EditProductViewModel
+@{
+	ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+<div class="col-4">
+<form asp-action="Create" class="d-flex flex-column gap-2">
+	@Html.AntiForgeryToken()
+	<div asp-validation-summary="ModelOnly"></div>
+	<div class="form-group">
+		<label>@Html.DisplayNameFor(model => model.Product.Name)</label>
+		<input class="form-control" asp-for="@Model.Product.Name"/>
+		<span asp-validation-for="@Model.Product.Name" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label>@Html.DisplayNameFor(model => model.Product.Price)</label>
+		<input class="form-control" asp-for="@Model.Product.Price"/>
+		<span asp-validation-for="@Model.Product.Price" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label>@Html.DisplayNameFor(model => model.Product.StockQuantity)</label>
+		<input class="form-control" asp-for="@Model.Product.StockQuantity"/>
+		<span asp-validation-for="@Model.Product.StockQuantity" class="text-danger"></span>
+	</div>								 
+	<div class="form-group">
+		<label>@Html.DisplayNameFor(model => model.Product.CategoryId)</label>
+		@Html.DropDownListFor(model => model.Product.CategoryId, new SelectList(Model.Categories, "Id", "Name"), "-- Select Category --", new { @class = "form-control" })
+		<span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label>@Html.DisplayNameFor(model => model.Product.Description)</label>
+		<input class="form-control" asp-for="@Model.Product.Description"/>
+		<span asp-validation-for="@Model.Product.Description" class="text-danger"></span>
+	</div>
+	<div class="form-group">
+		<label>@Html.DisplayNameFor(model => model.Product.ImageUrl)</label>
+		<input class="form-control" asp-for="@Model.Product.ImageUrl"/>
+		<span asp-validation-for="@Model.Product.ImageUrl" class="text-danger"></span>
+	</div>
+	<input type="submit" value="Submit" class="btn btn-primary align-self-start"/>
+</form>
+</div>
+
+<a asp-action="Index">Back to table</a>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}
