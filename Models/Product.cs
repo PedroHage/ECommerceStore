@@ -19,6 +19,6 @@ namespace ECommerceStore.Models
         public string ImageUrl { get; set; } = string.Empty;
         [Required, DisplayName("Category")]
         public int CategoryId { get; set; }
-        public Category? Category { get; set; }
+        public Category Category { get; set; } = null!;
     }
 }
