@@ -12,9 +12,23 @@ namespace ECommerceStore.Data
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetProductsAsync()
+        public async Task<IEnumerable<Product>> GetProductsAsync(string? name, double? minPrice, double? maxPrice, int? categoryId)
         {
-            return await _context.Products.Include(p => p.Category).ToListAsync();
+            var query = _context.Products.Include(p => p.Category).AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+                query = query.Where(p => p.Name.Contains(name.Trim()));
+
+            if (minPrice.HasValue)
+                query = query.Where(p => p.Price >= minPrice);
+
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice);
+
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId);
+
+            return await query.ToListAsync();
         }
 
         public async Task<Product> GetProductAsync(int id)

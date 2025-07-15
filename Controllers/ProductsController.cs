@@ -14,10 +14,19 @@ namespace ECommerceStore.Controllers
             _eCommerceStoreService = eCommerceStoreService;
         } 
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? name, double? minPrice, double? maxPrice, int? categoryId)
         {
-            var products = await _eCommerceStoreService.GetProductsAsync();
-            return View(products);
+            var model = new ProductFilterViewModel
+            {
+                Name = name,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                CategoryId = categoryId,
+                Categories = await _eCommerceStoreService.GetCategoriesAsync(),
+                Products = await _eCommerceStoreService.GetProductsAsync(name, minPrice, maxPrice, categoryId)
+            };
+            
+            return View(model);
         }
 
         public async Task<IActionResult> Details(int id)

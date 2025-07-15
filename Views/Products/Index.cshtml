@@ -1,26 +1,48 @@
-﻿@model IEnumerable<Product>
+﻿@model ECommerceStore.ViewModels.ProductFilterViewModel
 
 @{
 	ViewData["Title"] = "Products Table";
 }
 
 <h1>Products</h1>
+
 <p>
 	<a asp-action="Create">Create</a>
 </p>
+
+<form asp-action="Index" class="d-flex flex-row">
+	<div class="col-2">
+		<label>Name</label>
+		<input type="text" asp-for="@Model.Name" placeholder="Search by name" />
+	</div>
+	<div class="col-2">
+		<label>Min price</label>
+		<input type="number" asp-for="@Model.MinPrice"/>
+	</div>
+	<div class="col-2">
+		<label>Max price</label>
+		<input type="number" asp-for="@Model.MaxPrice" />
+	</div>
+	<div class="col-2">
+		<label>Category</label>
+		@Html.DropDownListFor(model => model.CategoryId, new SelectList(Model.Categories, "Id", "Name"), "Filter Category", new { @class = "form-control" })
+	</div>
+	<button class="btn btn-primary" type="submit">Filter</button>
+</form>
+
 <table class="table table-light table-bordered">
 	<thead>
 		<tr>
-			<th>@Html.DisplayNameFor(model => model.Name)</th>
-			<th>@Html.DisplayNameFor(model => model.Price)</th>
-			<th>@Html.DisplayNameFor(model => model.StockQuantity)</th>
-			<th>@Html.DisplayNameFor(model => model.CategoryId)</th>
-			<th>@Html.DisplayNameFor(model => model.Description)</th>
+			<th>Name</th>
+			<th>Price</th>
+			<th>Stock Quantity</th>
+			<th>Category</th>
+			<th>Description</th>
 			<th></th>
 		</tr>
 	</thead>
 	<tbody>
-@foreach (var product in Model)
+@foreach (var product in Model.Products!)
 {
 		<tr>
 			<td>@Html.DisplayFor(model => product.Name)</td>
