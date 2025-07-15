@@ -19,7 +19,7 @@ namespace ECommerceStore.Data
 
         public async Task<Product> GetProductAsync(int id)
         {
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
             if (product == null)
             {
                 throw new KeyNotFoundException();
