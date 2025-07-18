@@ -1,5 +1,4 @@
 ﻿using ECommerceStore.Data;
-using ECommerceStore.Models;
 using ECommerceStore.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,21 +36,31 @@ namespace ECommerceStore.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var ViewModel = new EditProductViewModel();
-            ViewModel.Categories = await _eCommerceStoreService.GetCategoriesAsync();
-            ViewModel.Product = await _eCommerceStoreService.GetProductAsync(id);
+            var ViewModel = new EditProductViewModel
+            {
+                Product = await _eCommerceStoreService.GetProductAsync(id),
+                Categories = await _eCommerceStoreService.GetCategoriesAsync()
+            };
             return View(ViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,StockQuantity,CategoryId,Description,ImageUrl")] Product product)
+        public async Task<IActionResult> Edit(int id, EditProductViewModel model)
         {
-            Console.WriteLine(product.Id);
-            if (id != product.Id)
+            if (id != model.Product.Id)
                 return NotFound();
 
-            await _eCommerceStoreService.UpdateProductAsync(product);
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                using var memoryStream = new MemoryStream();
+                await model.ImageFile.CopyToAsync(memoryStream);
+
+                model.Product.ImageData = memoryStream.ToArray();
+                model.Product.ImageMimeType = model.ImageFile.ContentType;
+            }
+
+            await _eCommerceStoreService.UpdateProductAsync(model.Product);
             return RedirectToAction(nameof(Index));
         }
 
@@ -72,21 +81,45 @@ namespace ECommerceStore.Controllers
 
         public async Task<IActionResult> Create()
         {
-            var ViewModel = new EditProductViewModel();
-            ViewModel.Categories = await _eCommerceStoreService.GetCategoriesAsync();
+            var ViewModel = new EditProductViewModel
+            {
+                Product = new Models.Product(),
+                Categories = await _eCommerceStoreService.GetCategoriesAsync()
+            };
             return View(ViewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(EditProductViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(product);
+                model.Categories = await _eCommerceStoreService.GetCategoriesAsync();
+                return View(model);
             }
-            await _eCommerceStoreService.AddProductAsync(product);
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                using var memoryStream = new MemoryStream();
+                await model.ImageFile.CopyToAsync(memoryStream);
+
+                model.Product.ImageData = memoryStream.ToArray();
+                model.Product.ImageMimeType = model.ImageFile.ContentType;
+            }
+
+            await _eCommerceStoreService.AddProductAsync(model.Product);
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> GetImage(int id)
+        {
+            var product = await _eCommerceStoreService.GetProductAsync(id);
+
+            if (product == null || product.ImageData == null)
+                return NotFound();
+
+            return File(product.ImageData, product.ImageMimeType!);
         }
     }
 }

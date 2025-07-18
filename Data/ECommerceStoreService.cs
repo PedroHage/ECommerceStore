@@ -53,8 +53,12 @@ namespace ECommerceStore.Data
             existentProduct.Price = product.Price;
             existentProduct.Category = product.Category;
             existentProduct.CategoryId = product.CategoryId;
-            existentProduct.ImageUrl = product.ImageUrl;
             existentProduct.StockQuantity = product.StockQuantity;
+            if (product.ImageData != null)
+            {
+                existentProduct.ImageData = product.ImageData;
+                existentProduct.ImageMimeType = product.ImageMimeType;
+            }
             _context.Products.Update(existentProduct);
             await _context.SaveChangesAsync();
         }

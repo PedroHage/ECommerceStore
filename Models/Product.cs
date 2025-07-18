@@ -15,10 +15,10 @@ namespace ECommerceStore.Models
         public double Price { get; set; }
         [Required, Range(0, int.MaxValue), DisplayName("Stock quantity")]
         public int StockQuantity { get; set; }
-        [Required, DisplayName("Image Url")]
-        public string ImageUrl { get; set; } = string.Empty;
+        public byte[]? ImageData { get; set; }
+        public string? ImageMimeType { get; set; }
         [Required, DisplayName("Category")]
         public int CategoryId { get; set; }
-        public Category Category { get; set; } = null!;
+        public Category? Category { get; set; }
     }
 }
