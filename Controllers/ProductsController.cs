@@ -1,9 +1,11 @@
 ﻿using ECommerceStore.Data;
 using ECommerceStore.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceStore.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ProductsController : Controller
     {
         private readonly ECommerceStoreService _eCommerceStoreService;
@@ -11,7 +13,7 @@ namespace ECommerceStore.Controllers
         public ProductsController(ECommerceStoreService eCommerceStoreService)
         {
             _eCommerceStoreService = eCommerceStoreService;
-        } 
+        }
 
         public async Task<IActionResult> Index(string? name, double? minPrice, double? maxPrice, int? categoryId)
         {
