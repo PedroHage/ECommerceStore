@@ -1,0 +1,29 @@
+﻿@model ECommerceStore.Models.Product
+@{
+	ViewData["Title"] = "Lawinscky Store - " + Model.Name;
+}
+
+<h1>Details</h1>
+<hr />
+<div class="row">
+	<div class="col-4">
+		<img src="@Url.Action("GetImage", "Products", new { id = Model.Id })" alt="Product's image not found" style="max-width:100%" />
+	</div>
+	<div class="col-4">
+		<dl class="row">
+			<dt>@Html.DisplayNameFor(model => model.Name)</dt>
+			<dd>@Html.DisplayFor(model => model.Name)</dd>
+			<dt>@Html.DisplayNameFor(model => model.Price)</dt>
+			<dd>@Html.DisplayFor(model => model.Price)</dd>
+			<dt>@Html.DisplayNameFor(model => model.Description)</dt>
+			<dd>@Html.DisplayFor(model => model.Description)</dd>
+			<dt>@Html.DisplayNameFor(model => model.CategoryId)</dt>
+			<dd>@Html.DisplayFor(model => model.Category.Name)</dd>
+			<dt>@Html.DisplayNameFor(model => model.StockQuantity)</dt>
+			<dd>@Html.DisplayFor(model => model.StockQuantity)</dd>
+		</dl>
+	</div>
+</div>
+<div>
+	<a asp-action="Index">Back to list</a>
+</div>

@@ -1,0 +1,45 @@
+﻿@model ECommerceStore.ViewModels.ProductFilterViewModel
+
+@{
+	ViewData["Title"] = "Lawinscky Store";
+}
+
+<form asp-action="Index" class="d-flex flex-row">
+	<div class="col-2">
+		<label>Name</label>
+		<input type="text" asp-for="@Model.Name" placeholder="Search by name" />
+	</div>
+	<div class="col-2">
+		<label>Min price</label>
+		<input type="number" asp-for="@Model.MinPrice" />
+	</div>
+	<div class="col-2">
+		<label>Max price</label>
+		<input type="number" asp-for="@Model.MaxPrice" />
+	</div>
+	<div class="col-2">
+		<label>Category</label>
+		@Html.DropDownListFor(model => model.CategoryId, new SelectList(Model.Categories, "Id", "Name"), "Filter Category", new { @class = "form-control" })
+	</div>
+	<button class="btn btn-primary" type="submit">Filter</button>
+</form>
+<div>
+
+</div>
+<div class="container mt-4">
+	<div class="row">
+		@foreach (var product in Model.Products!)
+		{
+			<div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+				<div class="card h-100">
+					<img src="@Url.Action("GetImage", "Products", new { id = product.Id })" class="card-img-top" alt="@product.Name" />
+					<div class="card-body d-flex flex-column">
+						<h5 class="card-title">@product.Name</h5>
+						<p class="card-text text-muted">$@product.Price</p>
+						<a asp-action="Details" asp-route-id="@product.Id" class="btn btn-primary mt-auto">View Details</a>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</div>

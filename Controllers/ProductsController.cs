@@ -114,6 +114,7 @@ namespace ECommerceStore.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> GetImage(int id)
         {
             var product = await _eCommerceStoreService.GetProductAsync(id);
