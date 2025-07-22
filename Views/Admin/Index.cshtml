@@ -1,0 +1,25 @@
+﻿@{
+	ViewData["Title"] = "Admin Dashboard";
+}
+
+<h1>DashBoard</h1>
+<hr />
+<div class="row mt-4">
+	<div class="col-8">
+		<table class="table table-bordered table-hover">
+			<thead class="thead-dark">
+				<tr>
+					<th>Elements</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><a href="@Url.Action("Index", "Products")" class="d-block text-decoration-none text-reset">Products</a></td>
+				</tr>
+				<tr>
+					<td><a href="@Url.Action("Index", "Categories")" class="d-block text-decoration-none text-reset">Categories</a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>
