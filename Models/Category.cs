@@ -10,6 +10,5 @@ namespace ECommerceStore.Models
         public string Name { get; set; } = string.Empty;
         [Required, StringLength(250)]
         public string? Description { get; set; }
-        public ICollection<Product>? Products { get; set; }
     }
 }

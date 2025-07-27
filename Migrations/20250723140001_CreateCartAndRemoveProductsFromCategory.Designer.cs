@@ -4,6 +4,7 @@ using ECommerceStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerceStore.Migrations
 {
     [DbContext(typeof(ECommerceStoreContext))]
-    partial class ECommerceStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20250723140001_CreateCartAndRemoveProductsFromCategory")]
+    partial class CreateCartAndRemoveProductsFromCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -23,6 +23,32 @@
 			<dd>@Html.DisplayFor(model => model.StockQuantity)</dd>
 		</dl>
 	</div>
+	<div class="col-4">
+		@if (Model.StockQuantity != 0){
+			if (User.Identity.IsAuthenticated)
+			{
+				<form asp-action="AddToCart" method="post" class="d-flex flex-row gap-2">
+					<input asp-for="@Model.Id" name="productId" type="hidden" />
+					<div>
+						<label>Quantity</label>
+						<input name="quantity" type="number" min="1" max="@Model.StockQuantity" />
+						<span class="text-danger"></span>
+					</div>
+					<button type="submit" class="btn btn-primary">Add to cart</button>
+				</form>
+			}
+			else
+			{
+				<span><a asp-area="Identity" asp-page="/Account/Login">Login</a> to add products to you cart</span>
+
+			}
+		}
+		else
+		{
+			<span class="text-bg-warning fw-bold fs-2">Product out of stock</span>	
+		}
+
+	</div>
 </div>
 <div>
 	<a asp-action="Index">Back to list</a>

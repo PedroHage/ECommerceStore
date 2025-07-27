@@ -8,6 +8,7 @@ namespace ECommerceStore.Data
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
         public ECommerceStoreContext(DbContextOptions<ECommerceStoreContext> options): base(options) { }
     }
 }

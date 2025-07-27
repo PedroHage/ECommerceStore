@@ -32,6 +32,9 @@
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin Panel</a></li>
+                            } else
+                            {
+                                <li class="nav-item"><a class="nav-link text-dark" asp-controller="Store" asp-action="Cart">Cart</a></li>
                             }
                             <li class="nav-item">
                                 <form asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm">
