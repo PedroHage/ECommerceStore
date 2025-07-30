@@ -11,22 +11,37 @@
 			double cartTotal = 0;
 			foreach (var cartItem in Model)
 			{
-				cartTotal += cartItem.Product.Price * cartItem.Quantity;
+				bool available = cartItem.Product.StockQuantity >= cartItem.Quantity;
 				<div class="row border border-3">
 					<img src="@Url.Action("GetImage", "Products", new { id = cartItem.ProductId })" alt="@cartItem.Product.Name" class="col-6"/>
-					<div class="col-6 mt-3">
+					<div class="col-6 mt-3 @(!available ? "text-bg-warning" : "")">
 						<span>@(cartItem.Product.Name + " x" + cartItem.Quantity)</span>
 						<span>@Html.DisplayFor(model =>  cartItem.Product.Price)</span>
 						<p class="border">@cartItem.Product.Description</p>
 						<a href="@Url.Action("RemoveCartItem", "Store", new { id = cartItem.Id })" class="btn btn-danger">Remove</a>
+						@if (available)
+						{
+							cartTotal += cartItem.Product.Price * cartItem.Quantity;
+						}
+						else
+						{
+							<div>
+								<span class="fs-3">Not enough in stock!</span>
+								<span></span>
 					</div>
+						}
 				</div>
-
+				</div>
 			}
 		}
 	</div>
 	<div class="d-flex flex-column col">
+		<div class="row">
 		<h2>Total</h2>
-		<span>@($"{cartTotal:C}")</span>
+			<span>@($"{cartTotal:C}") (Not including the out of stock products)</span>
+		</div>
+		<div class="row">
+			<span class="text-bg-warning mt-5">Some products might be removed from you cart in case they're no more available in the store</span>
+		</div>
 	</div>
 </div>
