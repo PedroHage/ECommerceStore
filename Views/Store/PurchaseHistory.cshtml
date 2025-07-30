@@ -1,0 +1,29 @@
+﻿@model IEnumerable<ECommerceStore.Models.PurchaseItem>
+@{
+	ViewData["Title"] = "History";
+}
+
+<h2>Purchase History</h2>
+<hr />
+<div class="container row gap-5">
+	<div class="d-flex flex-column col-8 gap-2">
+		@{
+			foreach (var purchaseItem in Model)
+			{
+				<div class="row border border-3">
+					<img src="@Url.Action("GetImage", "Store", new { id = purchaseItem.Id })" alt="@purchaseItem.Name" class="col-6" />
+					<div class="col-6 mt-3">
+						<span>@(purchaseItem.Name)</span><span class="text-secondary"> @($"(x{purchaseItem.Quantity})")</span>
+						<span>@($"{purchaseItem.ProductPrice * purchaseItem.Quantity:C}")</span>
+						<p class="border">@purchaseItem.Description</p>
+						<span>Purchase date: @(purchaseItem.PurchaseDate.ToString("yyyy-MM-dd HH:mm:ss"))</span>
+						@if (purchaseItem.ProductId != null)
+						{
+							<a href="@Url.Action("Details", "Store", new { id = purchaseItem.ProductId })" class="btn btn-primary">View on the store</a>
+						}
+					</div>
+				</div>
+			}
+		}
+	</div>
+</div>

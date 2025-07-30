@@ -59,5 +59,31 @@ namespace ECommerceStore.Controllers
             await _eCommerceStoreService.RemoveCartItemAsync(cartItem);
             return RedirectToAction(nameof(Cart), new { cartItem.UserId });
         }
+
+        public async Task<IActionResult> PurchaseHistory()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var purchaseItems = await _eCommerceStoreService.GetPurchaseItemsAsync(userId);
+            return View(purchaseItems);
+        }
+
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GetImage(int id)
+        {
+            var purchaseItem = await _eCommerceStoreService.GetPurchaseItemAsync(id);
+
+            if (purchaseItem == null || purchaseItem.ImageData == null)
+                return NotFound();
+
+            return File(purchaseItem.ImageData, purchaseItem.ImageMimeType!);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PurchaseCartItems()
+        {
+            await _eCommerceStoreService.PurchaseCartItemsAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return RedirectToAction("Cart");
+        }
     }
 }

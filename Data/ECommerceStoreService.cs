@@ -47,7 +47,7 @@ namespace ECommerceStore.Data
             var existentProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
             if (existentProduct == null)
                 throw new KeyNotFoundException();
-            
+
             existentProduct.Name = product.Name;
             existentProduct.Description = product.Description;
             existentProduct.Price = product.Price;
@@ -66,6 +66,12 @@ namespace ECommerceStore.Data
         public async Task DeleteProductAsync(Product product)
         {
             _context.Products.Remove(product);
+            var purchaseItems = await _context.PurchaseItems.Where(pi => pi.ProductId == product.Id).ToListAsync();
+            foreach (var item in purchaseItems)
+            {
+                item.ProductId = null;
+            }
+
             await _context.SaveChangesAsync();
         }
 
@@ -113,12 +119,12 @@ namespace ECommerceStore.Data
         {
             return _context.Categories.Any(c => c.Id == id);
         }
-    
+
         //Cart
         public async Task AddToCartAsync(string userId, int productId, int quantity)
         {
             var existingCartItem = await _context.CartItems.FirstOrDefaultAsync(c => (c.ProductId == productId && c.UserId == userId));
-            
+
             if (existingCartItem == null)
             {
                 var cartItem = new CartItem()
@@ -128,13 +134,13 @@ namespace ECommerceStore.Data
                     Quantity = quantity
                 };
                 await _context.CartItems.AddAsync(cartItem);
-            } 
+            }
             else
             {
                 existingCartItem.Quantity += quantity;
                 _context.CartItems.Update(existingCartItem);
             }
-                
+
             await _context.SaveChangesAsync();
         }
 
@@ -157,6 +163,50 @@ namespace ECommerceStore.Data
                 throw new KeyNotFoundException();
             }
             return cartItem;
+        }
+
+        public async Task<IEnumerable<PurchaseItem>> GetPurchaseItemsAsync(string userId)
+        {
+            return await _context.PurchaseItems.Include(c => c.User).Include(c => c.Product).Where(c => c.UserId == userId).ToListAsync();
+        }
+
+        public async Task<PurchaseItem> GetPurchaseItemAsync(int id)
+        {
+            var purchaseItem = await _context.PurchaseItems.Include(p => p.User).Include(p => p.Product).FirstOrDefaultAsync(p => p.Id == id);
+            if (purchaseItem == null)
+            {
+                throw new KeyNotFoundException();
+            }
+            return purchaseItem;
+        }
+
+        public async Task PurchaseCartItemsAsync(string userId)
+        {
+            var cartItems = await _context
+                .CartItems.Include(c => c.Product)
+                .Where(c => c.UserId == userId)
+                .Where(c => c.Product.StockQuantity >= c.Quantity)
+                .ToListAsync();
+            
+            foreach (var cartItem in cartItems)
+            {
+                var purchaseItem = new PurchaseItem()
+                {
+                    UserId = userId,
+                    ProductId = cartItem.ProductId,
+                    Quantity = cartItem.Quantity,
+                    ProductPrice = cartItem.Product.Price,
+                    Name = cartItem.Product.Name,
+                    Description = cartItem.Product.Description,
+                    ImageData = cartItem.Product.ImageData,
+                    ImageMimeType = cartItem.Product.ImageMimeType
+                };
+                await _context.PurchaseItems.AddAsync(purchaseItem);
+                var product = await GetProductAsync(cartItem.ProductId); //await _context.Products.FirstOrDefaultAsync(p => p.Id == cartItem.ProductId);
+                product.StockQuantity -= cartItem.Quantity;
+            }
+            _context.CartItems.RemoveRange(cartItems);
+            await _context.SaveChangesAsync();
         }
     }
 }
