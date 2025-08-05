@@ -1,7 +1,10 @@
 ﻿using ECommerceStore.Data;
+using ECommerceStore.Models;
 using ECommerceStore.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
+using Stripe.Checkout;
 using System.Security.Claims;
 
 namespace ECommerceStore.Controllers
@@ -80,10 +83,59 @@ namespace ECommerceStore.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PurchaseCartItems()
+        public async Task<IActionResult> CreateCheckout()
         {
-            await _eCommerceStoreService.PurchaseCartItemsAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            return RedirectToAction("Cart");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var cartItems = await _eCommerceStoreService.GetValidCartItemsAsync(userId);
+            var lineItems = cartItems.Select(ci => new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    Currency = "usd",
+                    UnitAmount = (long)(ci.Product.Price * 100),
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = ci.Product.Name
+                    }
+                },
+                Quantity = ci.Quantity
+            }).ToList();
+
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = lineItems,
+                Mode = "payment",
+                SuccessUrl = $"{Request.Scheme}://{Request.Host}/store/paymentSuccess?session_id={{CHECKOUT_SESSION_ID}}",
+                CancelUrl = Url.Action("PaymentCancel", "Store", null, Request.Scheme)
+            };
+
+            var service = new SessionService();
+            Session session = await service.CreateAsync(options);
+
+            return Redirect(session.Url);
+        }
+
+        public async Task<IActionResult> PaymentSuccess(string session_id)
+        {
+            if (string.IsNullOrEmpty(session_id))
+                return Forbid();
+
+            var service = new SessionService();
+            var session = await service.GetAsync(session_id);
+
+            if (session.PaymentStatus != "paid")
+                return Forbid();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var cartItems = await _eCommerceStoreService.GetValidCartItemsAsync(userId);
+            await _eCommerceStoreService.PurchaseCartItemsAsync(userId);
+            return View(cartItems);
+        }
+
+        public IActionResult PaymentCancel()
+        {
+            return View();
         }
     }
 }

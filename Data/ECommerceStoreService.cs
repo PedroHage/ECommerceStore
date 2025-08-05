@@ -165,6 +165,16 @@ namespace ECommerceStore.Data
             return cartItem;
         }
 
+        public async Task<IEnumerable<CartItem>> GetValidCartItemsAsync(string userId)
+        {
+            var cartItems = await _context
+                .CartItems.Include(c => c.Product)
+                .Where(c => c.UserId == userId)
+                .Where(c => c.Product.StockQuantity >= c.Quantity)
+                .ToListAsync();
+            return cartItems;
+        }
+
         public async Task<IEnumerable<PurchaseItem>> GetPurchaseItemsAsync(string userId)
         {
             return await _context.PurchaseItems.Include(c => c.User).Include(c => c.Product).Where(c => c.UserId == userId).ToListAsync();
@@ -182,11 +192,7 @@ namespace ECommerceStore.Data
 
         public async Task PurchaseCartItemsAsync(string userId)
         {
-            var cartItems = await _context
-                .CartItems.Include(c => c.Product)
-                .Where(c => c.UserId == userId)
-                .Where(c => c.Product.StockQuantity >= c.Quantity)
-                .ToListAsync();
+            var cartItems = await GetValidCartItemsAsync(userId);
             
             foreach (var cartItem in cartItems)
             {

@@ -1,0 +1,28 @@
+﻿@model IEnumerable<ECommerceStore.Models.CartItem>
+
+<h2>Purchase realized successfuly 🛍️</h2>
+<p>Thank you for the purchase, @User.Identity.Name!</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Unitary Price</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Quantity</td>
+                <td>$ @item.Product.Price.ToString("F2")</td>
+                <td>$ @((item.Quantity * item.Product.Price).ToString("F2"))</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p><strong>Purchase Total:</strong> $ @Model.Sum(i => i.Quantity * i.Product.Price).ToString("F2")</p>
