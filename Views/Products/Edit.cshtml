@@ -35,6 +35,8 @@
 				<input class="form-control" asp-for="Product.Description"/>
 				<span asp-validation-for="Product.Description" class="text-danger"></span>
 			</div>
+			<input asp-for="Product.ImageData" type="hidden" />
+			<input asp-for="Product.ImageMimeType" type="hidden" />
 			<div class="form-group">
 					<label>Product Image</label>
 					<input asp-for="ImageFile" type="file" class="form-control" />

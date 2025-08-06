@@ -43,23 +43,10 @@ namespace ECommerceStore.Data
 
         public async Task UpdateProductAsync(Product product)
         {
-            // Look, this is not efficient, it was just a way to fix a bug. NEED IMPROVEMENT
-            var existentProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
-            if (existentProduct == null)
+            if (!await _context.Products.AnyAsync(p => p.Id == product.Id))
                 throw new KeyNotFoundException();
 
-            existentProduct.Name = product.Name;
-            existentProduct.Description = product.Description;
-            existentProduct.Price = product.Price;
-            existentProduct.Category = product.Category;
-            existentProduct.CategoryId = product.CategoryId;
-            existentProduct.StockQuantity = product.StockQuantity;
-            if (product.ImageData != null)
-            {
-                existentProduct.ImageData = product.ImageData;
-                existentProduct.ImageMimeType = product.ImageMimeType;
-            }
-            _context.Products.Update(existentProduct);
+            _context.Products.Update(product);
             await _context.SaveChangesAsync();
         }
 
