@@ -1,4 +1,4 @@
-﻿using ECommerceStore.Data;
+﻿using ECommerceStore.Data.Services;
 using ECommerceStore.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,16 +9,16 @@ namespace ECommerceStore.Controllers
     [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller
     {
-        private readonly ECommerceStoreService _eCommerceStoreService;
+        private readonly CategoryService _categoriesService;
 
-        public CategoriesController(ECommerceStoreService eCommerceStoreService)
+        public CategoriesController(CategoryService categoriesService)
         {
-            this._eCommerceStoreService = eCommerceStoreService;
+            _categoriesService = categoriesService;
         }
 
         public async Task<IActionResult> Index()
         {
-            return View(await _eCommerceStoreService.GetCategoriesAsync());
+            return View(await _categoriesService.GetCategoriesAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -28,7 +28,7 @@ namespace ECommerceStore.Controllers
                 return NotFound();
             }
 
-            var category = await _eCommerceStoreService.GetCategoryAsync((int)id);
+            var category = await _categoriesService.GetCategoryAsync((int)id);
             if (category == null)
             {
                 return NotFound();
@@ -48,7 +48,7 @@ namespace ECommerceStore.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _eCommerceStoreService.AddCategoryAsync(category);
+                await _categoriesService.AddCategoryAsync(category);
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
@@ -61,7 +61,7 @@ namespace ECommerceStore.Controllers
                 return NotFound();
             }
 
-            var category = await _eCommerceStoreService.GetCategoryAsync((int) id);
+            var category = await _categoriesService.GetCategoryAsync((int) id);
             if (category == null)
             {
                 return NotFound();
@@ -82,11 +82,11 @@ namespace ECommerceStore.Controllers
             {
                 try
                 {
-                    await _eCommerceStoreService.UpdateCategoryAsync(category);
+                    await _categoriesService.UpdateCategoryAsync(category);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_eCommerceStoreService.CategoryExists(category.Id))
+                    if (!_categoriesService.CategoryExists(category.Id))
                     {
                         return NotFound();
                     }
@@ -108,7 +108,7 @@ namespace ECommerceStore.Controllers
                 return NotFound();
             }
 
-            var category = await _eCommerceStoreService.GetCategoryAsync((int) id);
+            var category = await _categoriesService.GetCategoryAsync((int) id);
             if (category == null)
             {
                 return NotFound();
@@ -121,10 +121,10 @@ namespace ECommerceStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _eCommerceStoreService.GetCategoryAsync((int)id);
+            var category = await _categoriesService.GetCategoryAsync((int)id);
             if (category != null)
             {
-                await _eCommerceStoreService.DeleteCategoryAsync(category);
+                await _categoriesService.DeleteCategoryAsync(category);
             }
             return RedirectToAction(nameof(Index));
         }

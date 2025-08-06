@@ -1,10 +1,11 @@
-﻿using ECommerceStore.Data;
+﻿using ECommerceStore.Data.Services;
 using ECommerceStore.Models;
 using ECommerceStore.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 using Stripe.Checkout;
+using Stripe.Climate;
 using System.Security.Claims;
 
 namespace ECommerceStore.Controllers
@@ -12,11 +13,19 @@ namespace ECommerceStore.Controllers
     [Authorize(Roles = "User")]
     public class StoreController : Controller
     {
-        private ECommerceStoreService _eCommerceStoreService;
+        private ProductsService _productService;
+        private CategoryService _categoriesService;
+        private CartService _cartService;
+        private PurchaseItemService _purchaseItemService;
+        private PurchaseService _purchaseService;
 
-        public StoreController(ECommerceStoreService eCommerceStoreService)
+        public StoreController(ProductsService productService, CategoryService categoriesService, CartService cartService, PurchaseItemService purchaseItemService, PurchaseService purchaseService)
         {
-            _eCommerceStoreService = eCommerceStoreService;
+            _productService = productService;
+            _categoriesService = categoriesService;
+            _cartService = cartService;
+            _purchaseItemService = purchaseItemService;
+            _purchaseService = purchaseService;
         }
 
         [AllowAnonymous]
@@ -28,8 +37,8 @@ namespace ECommerceStore.Controllers
                 MinPrice = minPrice,
                 MaxPrice = maxPrice,
                 CategoryId = categoryId,
-                Categories = await _eCommerceStoreService.GetCategoriesAsync(),
-                Products = await _eCommerceStoreService.GetProductsAsync(name, minPrice, maxPrice, categoryId)
+                Categories = await _categoriesService.GetCategoriesAsync(),
+                Products = await _productService.GetProductsAsync(name, minPrice, maxPrice, categoryId)
             };
 
             return View(model);
@@ -38,35 +47,35 @@ namespace ECommerceStore.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
-            return View(await _eCommerceStoreService.GetProductAsync(id));
+            return View(await _productService.GetProductAsync(id));
         }
 
         [HttpPost]
         public async Task<IActionResult> AddToCart(int productId, int quantity)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _eCommerceStoreService.AddToCartAsync(userId, productId, quantity);
+            await _cartService.AddToCartAsync(userId, productId, quantity);
             return RedirectToAction(nameof(Cart));
         }
 
         public async Task<IActionResult> Cart()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var cartItems = await _eCommerceStoreService.GetCartItemsAsync(userId);
+            var cartItems = await _cartService.GetCartItemsAsync(userId);
             return View(cartItems);
         }
 
         public async Task<IActionResult> RemoveCartItem(int id)
         {
-            var cartItem = await _eCommerceStoreService.GetCartItemAsync(id);
-            await _eCommerceStoreService.RemoveCartItemAsync(cartItem);
+            var cartItem = await _cartService.GetCartItemAsync(id);
+            await _cartService.RemoveCartItemAsync(cartItem);
             return RedirectToAction(nameof(Cart), new { cartItem.UserId });
         }
 
         public async Task<IActionResult> PurchaseHistory()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var purchaseItems = await _eCommerceStoreService.GetPurchaseItemsAsync(userId);
+            var purchaseItems = await _purchaseItemService.GetPurchaseItemsAsync(userId);
             return View(purchaseItems);
         }
 
@@ -74,7 +83,7 @@ namespace ECommerceStore.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetImage(int id)
         {
-            var purchaseItem = await _eCommerceStoreService.GetPurchaseItemAsync(id);
+            var purchaseItem = await _purchaseItemService.GetPurchaseItemAsync(id);
 
             if (purchaseItem == null || purchaseItem.ImageData == null)
                 return NotFound();
@@ -86,7 +95,7 @@ namespace ECommerceStore.Controllers
         public async Task<IActionResult> CreateCheckout()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var cartItems = await _eCommerceStoreService.GetValidCartItemsAsync(userId);
+            var cartItems = await _cartService.GetValidCartItemsAsync(userId);
             var lineItems = cartItems.Select(ci => new SessionLineItemOptions
             {
                 PriceData = new SessionLineItemPriceDataOptions
@@ -128,8 +137,8 @@ namespace ECommerceStore.Controllers
                 return Forbid();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var cartItems = await _eCommerceStoreService.GetValidCartItemsAsync(userId);
-            await _eCommerceStoreService.PurchaseCartItemsAsync(userId);
+            var cartItems = await _cartService.GetValidCartItemsAsync(userId);
+            await _purchaseService.PurchaseCartItemsAsync(userId);
             return View(cartItems);
         }
 

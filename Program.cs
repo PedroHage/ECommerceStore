@@ -2,6 +2,7 @@ using ECommerceStore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Stripe;
+using ECommerceStore.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,11 @@ builder.Services.AddDbContext<ECommerceStoreContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-builder.Services.AddScoped<ECommerceStoreService>();
+builder.Services.AddScoped<ProductsService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<PurchaseItemService>();
+builder.Services.AddScoped<PurchaseService>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
